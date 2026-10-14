@@ -1,0 +1,14 @@
+pandas
+openai
+langchain
+langchain-experimental
+langchain-text-splitters
+langchain-openai
+langchain-community
+pypdf
+pymupdf
+pdfplumber
+chromadb
+faiss-cpu
+tiktoken
+gradio
