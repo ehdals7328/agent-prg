@@ -1,0 +1,24 @@
+# 파이썬 가상환경 폴더 제외
+ch03_env/
+ch03/ch03_env/
+*env*/
+venv/
+
+# 보안 및 기타 파일 제외
+.env
+__pycache__/
+.ipynb_checkpoints/
+
+#실습용 pdf 파일 제외
+ch03/db_blockchain_usa_2025
+ch03/db_ict_policy_japan_2024
+ch03/db_ict_policy_usa_2024
+
+#주피터 노트북 체크포인트
+.ipynb_checkpoints/
+
+# ChromaDB / Vector DB 자동 생성 파일 및 폴더 제외 (하위 폴더 포함)
+**/*.sqlite3
+**/*.bin
+**/db_*/
+ch03/db_*
