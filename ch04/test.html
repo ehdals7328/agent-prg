@@ -1,0 +1,50 @@
+flowchart TD
+    %% Input Layer
+    subgraph INPUT [1. 입력 레이어 (Input Layer)]
+        A1[2D RGB 이미지 업로드] --> A3[Vision Pipeline 시작]
+        A2[카메라 Calibration 데이터<br/>Homography Matrix H] --> C1
+    end
+
+    %% Perception & Processing Layer
+    subgraph PERCEPTION [2. 객체 인지 및 ROI 추출 (YOLOv11)]
+        A3 --> B1[YOLOv11 Object Detection]
+        B1 --> B2{객체 바운딩 박스 생성}
+        B2 -->|Base Metal / Stiffener| B3[모재/보강재 영역 마스킹]
+        B2 -->|Joint Area| B4[이음부 관심 영역 ROI Crop]
+    end
+
+    %% Edge & Vector Extraction Layer
+    subgraph EXTRACTION [3. 용접선 궤적 추출 (OpenCV)]
+        B4 --> C1_1[ROI 내 노이즈 필터링 & Canny Edge Detection]
+        C1_1 --> C1_2[Hough Line / RANSAC Line Fitting]
+        C1_2 --> C2[용접선 시작/끝 2D 픽셀 좌표 도출<br/>u1, v1 / u2, v2]
+    end
+
+    %% Coordinate Transformation Layer
+    subgraph TRANSFORM [4. 2.5D 좌표 추론 엔진 (Homography)]
+        C2 --> C1[Homography Matrix H 적용<br/>Perspective Transform]
+        C1 --> C3[물리적 구속 조건 대입<br/>Welding Table Jig Constraint: Z = 0]
+        C3 --> C4[실제 공간 3D 좌표 산출<br/>X_mm, Y_mm, Z_mm = 0]
+    end
+
+    %% Output Layer
+    subgraph OUTPUT [5. 메타데이터 파이프라인 (Output & Integration)]
+        C4 --> D1[JSON 데이터 규격 생성 Engine]
+        B3 --> D1
+        D1 --> D2[Overlay 2D 시각화 이미지]
+        D1 --> D3[구조화 메타데이터 JSON]
+        
+        D2 --> E1[웹 프론트엔드 UI 뷰어]
+        D3 --> E2[Multi-Agent & RAG 판단 엔진]
+        D3 --> E3[웹 3D 뷰어 / 2차 ROS2 로봇 인터페이스]
+    end
+
+    classDef input fill:#f9f9f9,stroke:#333,stroke-width:2px;
+    classDef process fill:#e1f5fe,stroke:#0288d1,stroke-width:2px;
+    classDef transform fill:#fff3e0,stroke:#f57c00,stroke-width:2px;
+    classDef output fill:#e8f5e9,stroke:#388e3c,stroke-width:2px;
+
+    class A1,A2 input;
+    class B1,B2,B3,B4,C1_1,C1_2,C2 process;
+    class C1,C3,C4 transform;
+    class D1,D2,D3,E1,E2,E3 output;
